@@ -27,6 +27,7 @@ for col in cat_col:
 for col in num_col:
     data[col].fillna(data[col].median(), inplace=True)
 
+#dropping some columns
 data = data.drop(['Name', 'Parch', 'Ticket', 'Cabin'], axis = 1)
 
 # Converting categorical column to numerical columns using label encoding
@@ -41,4 +42,69 @@ SEED: int = 1
 
 # splitting the data
 X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.3, random_state=SEED)
+
+#____________________Logisitic Regression________________________
+
+lr = LogisticRegression(random_state=SEED)
+
+lr_param_grid = {
+    'C': [100, 10, 1, 0.1, 0.01],
+    'penalty': ['l1', 'l2'],
+    'solver': ['liblinear']
+}
+
+lr_gs = GridSearchCV(
+    estimator=lr,
+    param_grid=lr_param_grid,
+    cv = 5,
+    n_jobs=-1,
+    scoring='accuracy',
+    verbose=1,
+)
+
+lr_model = lr_gs.fit(X_train, y_train)
+
+#____________________Decision Tree________________________
+
+dt = DecisionTreeClassifier(
+    random_state=SEED
+)
+
+dt_param_grid = {
+    "max_depth": [3, 5, 7, 9, 11, 13],
+    "criterion": ["gini", "entropy"],
+}
+
+dt_gs = GridSearchCV(
+    estimator=dt,
+    param_grid=dt_param_grid,
+    cv = 5,
+    n_jobs=-1,
+    scoring="accuracy",
+    verbose=0
+)
+
+dt_model = dt_gs.fit(X_train, y_train)
+
+#____________________Random Forest_________________________
+
+rf = RandomForestClassifier(random_state=SEED)
+
+rf_param_grid = {
+    'n_estimators':[400, 700],
+    'max_depth': [15, 20, 20],
+    'criterion': ['gini', 'entropy'],
+    'max_leaf_nodes': [50, 100]
+}
+
+rf_gs = GridSearchCV(
+    estimator=rf,
+    param_grid=rf_param_grid,
+    cv=5,
+    n_jobs=-1,
+    scoring='accuracy',
+    verbose=0
+)
+
+rf_model = rf_gs.fit(X_train, y_train)
 
