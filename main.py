@@ -43,7 +43,7 @@ SEED: int = 1
 # splitting the data
 X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.3, random_state=SEED)
 
-#____________________Logisitic Regression________________________
+#_____________________Logisitic Regression_______________________
 
 lr = LogisticRegression(random_state=SEED)
 
@@ -64,7 +64,7 @@ lr_gs = GridSearchCV(
 
 lr_model = lr_gs.fit(X_train, y_train)
 
-#____________________Decision Tree________________________
+#_________________________Decision Tree__________________________
 
 dt = DecisionTreeClassifier(
     random_state=SEED
@@ -86,7 +86,7 @@ dt_gs = GridSearchCV(
 
 dt_model = dt_gs.fit(X_train, y_train)
 
-#____________________Random Forest_________________________
+#________________________Random Forest___________________________
 
 rf = RandomForestClassifier(random_state=SEED)
 
