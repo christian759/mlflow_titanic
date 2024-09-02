@@ -19,7 +19,6 @@ data = pd.read_csv("Titanic-Dataset.csv")
 num_col: list[str] = data.select_dtypes(include=['int64', 'float64']).columns.to_list()
 cat_col: list[str] = data.select_dtypes(include=['object']).columns.to_list()
 
-
 # Handling missing data
 for col in cat_col:
     data[col].fillna(data[col].mode()[0], inplace=True)
@@ -27,15 +26,17 @@ for col in cat_col:
 for col in num_col:
     data[col].fillna(data[col].median(), inplace=True)
 
-#dropping some columns
-data = data.drop(['Name', 'Parch', 'Ticket', 'Cabin'], axis = 1)
 
 # Converting categorical column to numerical columns using label encoding
 for col in cat_col:
     le = preprocessing.LabelEncoder()
     data[col] = le.fit_transform(data[col])
 
-X = data.drop(['Survived', 'PassengerId'], 1)
+#dropping some columns
+data = data.drop(['Name', 'Parch', 'Ticket', 'Cabin'], axis = 1)
+
+
+X = data.drop(['Survived', 'PassengerId'], axis=1)
 y = data.Survived
 
 SEED: int = 1
@@ -108,3 +109,49 @@ rf_gs = GridSearchCV(
 
 rf_model = rf_gs.fit(X_train, y_train)
 
+
+def model_metrics(actual, pred):
+    accuracy = metrics.accuracy_score(y_test, pred)
+    f1 = metrics.f1_score(actual, pred, pos_label=1)
+    fpr, tpr, thresholds1 = metrics.roc_curve(y_test, pred)
+    auc = metrics.auc(fpr, tpr)
+    plt.figure(figsize=(8,8))
+       # plot auc 
+    plt.plot(fpr, tpr, color='blue', label='ROC curve area = %0.2f'%auc)
+    plt.plot([0,1],[0,1], 'r--')
+    plt.xlim([-0.1, 1.1])
+    plt.ylim([-0.1, 1.1])
+    plt.xlabel('False Positive Rate', size=14)
+    plt.ylabel('True Positive Rate', size=14)
+    plt.legend(loc='lower right')
+        # Save plot
+    plt.savefig("plots/ROC_curve.png")
+        # Close plot
+    plt.close()
+    return(accuracy, f1, auc)
+
+
+def mlflow_logs(model, X, y, name):
+    with mlflow.start_run(run_name = name) as run:
+    # Run id
+        run_id = run.info.run_id
+        mlflow.set_tag("run_id", run_id)
+        pred = model.predict(X)
+        # Generate performance metrics
+        (accuracy, f1, auc) = model_metrics(y, pred)
+        # Logging best parameters 
+        mlflow.log_params(model.best_params_)
+        # Logging model metric 
+        mlflow.log_metric("Mean cv score", model.best_score_)
+        mlflow.log_metric("Accuracy", accuracy)
+        mlflow.log_metric("f1-score", f1)
+        mlflow.log_metric("AUC", auc)
+        # Logging artifacts and model
+        mlflow.log_artifact("plots/ROC_curve.png")
+        mlflow.sklearn.log_model(model, name)
+        mlflow.end_run()
+        
+
+mlflow_logs(dt_model, X_test, y_test, "DecisionTreeClassifier")
+mlflow_logs(lr_model, X_test, y_test, "LogisticRegression")
+mlflow_logs(rf_model, X_test, y_test, "RandomForestClassifier")
