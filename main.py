@@ -1,6 +1,7 @@
 # Imports
 import pandas as pd
 import numpy as np
+import os
 
 from sklearn.linear_model import LogisticRegression
 from sklearn.ensemble import RandomForestClassifier
@@ -130,6 +131,10 @@ def model_metrics(actual, pred):
     plt.close()
     return(accuracy, f1, auc)
 
+mlflow.set_tracking_uri("http://localhost:5000")
+
+if not os.path.exists('plots'):
+    os.makedirs('plots')
 
 def mlflow_logs(model, X, y, name):
     with mlflow.start_run(run_name = name) as run:
@@ -152,6 +157,7 @@ def mlflow_logs(model, X, y, name):
         mlflow.end_run()
         
 
+mlflow.set_experiment("Survival Prediction")
 mlflow_logs(dt_model, X_test, y_test, "DecisionTreeClassifier")
 mlflow_logs(lr_model, X_test, y_test, "LogisticRegression")
 mlflow_logs(rf_model, X_test, y_test, "RandomForestClassifier")

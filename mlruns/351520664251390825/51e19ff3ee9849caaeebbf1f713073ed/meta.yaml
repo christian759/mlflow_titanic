@@ -1,0 +1,16 @@
+artifact_uri: mlflow-artifacts:/351520664251390825/51e19ff3ee9849caaeebbf1f713073ed/artifacts
+deleted_time: 1725312695692
+end_time: 1725312114176
+entry_point_name: ''
+experiment_id: '351520664251390825'
+lifecycle_stage: deleted
+run_id: 51e19ff3ee9849caaeebbf1f713073ed
+run_name: DecisionTreeClassifier
+run_uuid: 51e19ff3ee9849caaeebbf1f713073ed
+source_name: ''
+source_type: 4
+source_version: ''
+start_time: 1725312113731
+status: 4
+tags: []
+user_id: chris
